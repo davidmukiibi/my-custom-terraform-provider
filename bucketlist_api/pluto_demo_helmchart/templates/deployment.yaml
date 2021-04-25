@@ -1,0 +1,82 @@
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name:  {{ .Values.env }}-backend
+  namespace:  {{ .Values.env }}
+  labels:
+    run:  {{ .Values.env }}-backend
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      run:  {{ .Values.env }}-backend
+  template:
+    metadata:
+      labels:
+        run:  {{ .Values.env }}-backend
+    spec:
+      containers:
+        - name:  {{ .Values.env }}-backend
+          image:  {{ .Values.apiImage }}
+          ports:
+            - containerPort: {{ .Values.service.port }}
+              protocol: TCP
+          env:
+            - name: SSL_MODE
+              value: disable
+            - name: DB_TYPE
+              value: postgres
+            - name: DB_HOST
+              value: bucketdb
+            - name: DB_DATABASE
+              value: kenya
+            - name: DB_USER
+              value: postgres
+            - name: DB_PASS
+              valueFrom:
+                secretKeyRef:
+                  name: secret-credentials
+                  key: DATABASE_PASSWORD
+            - name: SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: secret-credentials
+                  key: SECRET
+
+---
+
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name:  {{ .Values.env }}-backend-db
+  namespace:  {{ .Values.env }}
+  labels:
+    run:  {{ .Values.env }}-backend-db
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      run:  {{ .Values.env }}-backend-db
+  template:
+    metadata:
+      labels:
+        run:  {{ .Values.env }}-backend-db
+    spec:
+      containers:
+        - name:  {{ .Values.env }}-backend-db
+          image: {{ .Values.dbImage }}
+          ports:
+            - containerPort: 5432
+              protocol: TCP
+          env:
+            - name: POSTGRES_USER
+              value: postgres
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: secret-credentials
+                  key: DATABASE_PASSWORD
+            - name: POSTGRES_DB
+              value: kenya
+            - name: PGSSLMODE
+              value: "disable"

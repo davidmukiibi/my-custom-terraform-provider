@@ -1,0 +1,14 @@
+replicaCount: 1
+
+env: stage
+appName: stage-backend-service
+secretName: secret-credentials
+dbName: bucketdb
+apiImage: mukiibi/pluto_demo:v15
+dbImage: postgres
+service:
+  port: 3000
+  type: TCP
+ingress:
+  enabled: false
+

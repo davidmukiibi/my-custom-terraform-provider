@@ -1,0 +1,35 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: {{ .Values.appName }}
+  namespace: {{ .Values.env }}
+  labels:
+    run: {{ .Values.env }}-backend
+spec:
+  ports:
+    - protocol: TCP
+      port: 3000
+      targetPort: 3000
+  selector:
+    run: {{ .Values.env }}-backend
+  type: NodePort
+
+
+---
+
+kind: Service
+apiVersion: v1
+metadata:
+  name: {{ .Values.dbName }}
+  namespace: {{ .Values.env }}
+  labels:
+    run: {{ .Values.env }}-backend-db
+spec:
+  ports:
+    - protocol: TCP
+      port: 5432
+      targetPort: 5432
+  selector:
+    run: {{ .Values.env }}-backend-db
+  type: ClusterIP
+
