@@ -1,0 +1,156 @@
+kind: Namespace
+apiVersion: v1
+metadata:
+  name: stage
+  labels:
+    name: stage
+
+---
+
+kind: Service
+apiVersion: v1
+metadata:
+  name: stage-backend-service
+  namespace: stage
+  labels:
+    run: stage-backend
+spec:
+  ports:
+    - protocol: TCP
+      port: 3000
+      targetPort: 3000
+  selector:
+    run: stage-backend
+  type: NodePort
+
+---
+
+apiVersion: v1
+kind: Secret
+metadata:
+  name: secret-credentials
+  namespace: stage
+type: Opaque
+data:
+  # These values have been base64 encoded
+  SECRET: c29tZV9yYW5kb21fc2VjcmV0X2lzX25vdF9hX3NlY3JldA==
+  DATABASE_HOST: YnVja2V0ZGI=
+  DATABASE_NAME: a2VueWE=
+  DATABASE_USER: cGx1dG9fdXNlcg==
+  DATABASE_PASSWORD: c2VjcmV0c2VjcmV0c2VjcmV0
+  SSL_MODE: ZGlzYWJsZQ==
+  DB_TYPE: cG9zdGdyZXM=
+
+---
+
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: stage-backend
+  namespace: stage
+  labels:
+    run: stage-backend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      run: stage-backend
+  template:
+    metadata:
+      labels:
+        run: stage-backend
+    spec:
+      containers:
+        - name: stage-backend
+          image: mukiibi/pluto_demo:v1
+          ports:
+            - containerPort: 3000
+              protocol: TCP
+          env:
+            - name: SSL_MODE
+              value: disable
+            - name: DB_TYPE
+              value: postgres
+            - name: DB_HOST
+              value: bucketdb
+            - name: DB_DATABASE
+              value: kenya
+            - name: DB_USER
+              value: postgres
+            - name: DB_PASS
+              valueFrom:
+                secretKeyRef:
+                  name: secret-credentials
+                  key: DATABASE_PASSWORD
+            - name: SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: secret-credentials
+                  key: SECRET
+
+---
+
+kind: Service
+apiVersion: v1
+metadata:
+  name: bucketdb
+  namespace: stage
+  labels:
+    run: stage-backend-db
+spec:
+  ports:
+    - protocol: TCP
+      port: 5432
+      targetPort: 5432
+  selector:
+    run: stage-backend-db
+  type: ClusterIP
+
+---
+
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: stage-backend-db
+  namespace: stage
+  labels:
+    run: stage-backend-db
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      run: stage-backend-db
+  template:
+    metadata:
+      labels:
+        run: stage-backend-db
+    spec:
+      containers:
+        - name: stage-backend-db
+          image: postgres
+          ports:
+            - containerPort: 5432
+              protocol: TCP
+          env:
+            - name: POSTGRES_USER
+              value: postgres
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: secret-credentials
+                  key: DATABASE_PASSWORD
+            - name: POSTGRES_DB
+              value: kenya
+            # - name: PGSSLMODE
+            #   value: "disable"
+
+
+
+# ---
+# apiVersion: v1
+# kind: ConfigMap
+# metadata:
+#   name: game-demo
+# data:
+#   SSL_MODE: "disable"
+#   DB_TYPE: "postgres"

@@ -1,0 +1,4 @@
+env.sh
+pluto_demo_helmchart/*
+.DS_Store
+service.yaml
