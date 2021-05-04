@@ -4,7 +4,7 @@ env: stage
 appName: stage-backend-service
 secretName: secret-credentials
 dbName: bucketdb
-apiImage: mukiibi/pluto_demo:v15
+apiImage: mukiibi/api_demo:v001
 dbImage: postgres
 service:
   port: 3000
