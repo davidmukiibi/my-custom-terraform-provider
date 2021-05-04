@@ -1,4 +1,6 @@
-To make use of the newly built provider, follow the steps below:
+# Custom Terraform Provider making API calls to a custom API endpoint
+
+## To make use of the newly built provider, follow the steps below
 
 1. While in the root folder, run `make install`. this will:
    1. Build the Go binary.
@@ -11,3 +13,4 @@ To make use of the newly built provider, follow the steps below:
 4. And viola! You successfully deployed a custom Terraform Provider calling a custom API.
 5. A more detailed article on how the moving pieces were put together will come soon on medium [here](https://medium.com/@david.mukiibiq)
 
+This build was inspired from the Harshicorp's `Terraform` who have a good example (hashicups) and documentation [here](https://www.hashicorp.com/blog/writing-custom-terraform-providers)
