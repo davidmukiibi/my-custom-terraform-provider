@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"os"
 	"strconv"
 	"time"
 
@@ -21,7 +22,7 @@ func dataSourceUsers() *schema.Resource {
 				Computed: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-            "first_name": &schema.Schema{
+						"first_name": &schema.Schema{
 							Type:     schema.TypeString,
 							Computed: true,
 						},
@@ -33,7 +34,7 @@ func dataSourceUsers() *schema.Resource {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
-            "password": &schema.Schema{
+						"password": &schema.Schema{
 							Type:     schema.TypeString,
 							Computed: true,
 						},
@@ -50,7 +51,7 @@ func dataSourceUsersRead(ctx context.Context, d *schema.ResourceData, m interfac
 	// Warning or errors can be collected in a slice type
 	var diags diag.Diagnostics
 
-	req, err := http.NewRequest("GET", fmt.Sprintf("%s/users", "http://192.168.64.2:31071"), nil)
+	req, err := http.NewRequest("GET", fmt.Sprintf("%s/users", os.Getenv("URL")), nil)
 	if err != nil {
 		return diag.FromErr(err)
 	}
@@ -67,7 +68,7 @@ func dataSourceUsersRead(ctx context.Context, d *schema.ResourceData, m interfac
 		return diag.FromErr(err)
 	}
 
-  flattenedUsers := flattenUsersData(users)
+	flattenedUsers := flattenUsersData(users)
 
 	if err := d.Set("users", flattenedUsers); err != nil {
 		return diag.FromErr(err)
@@ -80,22 +81,22 @@ func dataSourceUsersRead(ctx context.Context, d *schema.ResourceData, m interfac
 }
 
 func flattenUsersData(orderItems []map[string]interface{}) []interface{} {
-  if orderItems != nil {
-    ois := make([]interface{}, len(orderItems))
+	if orderItems != nil {
+		ois := make([]interface{}, len(orderItems))
 
-    for i, orderItem := range orderItems {
-      oi := make(map[string]interface{})
+		for i, orderItem := range orderItems {
+			oi := make(map[string]interface{})
 
-      oi["first_name"] = orderItem["first_name"]
-      oi["surname"]    = orderItem["surname"]
-      oi["email"]      = orderItem["email"]
-      oi["password"]   = orderItem["password"]
+			oi["first_name"] = orderItem["first_name"]
+			oi["surname"] = orderItem["surname"]
+			oi["email"] = orderItem["email"]
+			oi["password"] = orderItem["password"]
 
-      ois[i] = oi
-    }
+			ois[i] = oi
+		}
 
-    return ois
-  }
+		return ois
+	}
 
-  return make([]interface{}, 0)
+	return make([]interface{}, 0)
 }

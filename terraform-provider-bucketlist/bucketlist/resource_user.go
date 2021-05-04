@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"os"
+	"strings"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -82,7 +84,8 @@ func createUser(client *http.Client, user User) diag.Diagnostics {
 	var newURL url.URL
 	var baseURL url.URL
 	var diags diag.Diagnostics
-	newURL.Host = "192.168.64.2:31071"
+	s := strings.Split(os.Getenv("URL"), "//")
+	newURL.Host = s[1]
 	newURL.Path = "signup"
 	newURL.Scheme = "http"
 
@@ -119,7 +122,8 @@ func resourceUserRead(ctx context.Context, d *schema.ResourceData, m interface{}
 	var BaseURL url.URL
 
 	newURL.Path = fmt.Sprintf("search/%s", firstName)
-	newURL.Host = "192.168.64.2:31071"
+	s := strings.Split(os.Getenv("URL"), "//")
+	newURL.Host = s[1]
 	newURL.Scheme = "http"
 
 	u := BaseURL.ResolveReference(&newURL)
@@ -178,7 +182,8 @@ func resourceUserUpdate(ctx context.Context, d *schema.ResourceData, m interface
 
 	firstName := d.Get("first_name").(string)
 	newURL.Path = fmt.Sprintf("users/%s", firstName)
-	newURL.Host = "192.168.64.2:31071"
+	s := strings.Split(os.Getenv("URL"), "//")
+	newURL.Host = s[1]
 	newURL.Scheme = "http"
 
 	if d.HasChange("surname") {
@@ -231,7 +236,8 @@ func resourceUserDelete(ctx context.Context, d *schema.ResourceData, m interface
 	firstName := d.Get("first_name")
 
 	newURL.Path = fmt.Sprintf("users/%s", firstName)
-	newURL.Host = "192.168.64.2:31071"
+	s := strings.Split(os.Getenv("URL"), "//")
+	newURL.Host = s[1]
 	newURL.Scheme = "http"
 
 	u := BaseURL.ResolveReference(&newURL)
